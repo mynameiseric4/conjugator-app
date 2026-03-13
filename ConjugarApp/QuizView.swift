@@ -175,35 +175,87 @@ struct QuizView: View {
     }
 
     private func answerInput(card: PracticeCard) -> some View {
-        VStack(spacing: 12) {
-            TextField("Type conjugation...", text: $answer)
-                .textFieldStyle(.roundedBorder)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-                .font(.title3)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-                .onSubmit {
-                    submitAnswer()
-                }
-
-            // Accent helper toolbar
-            HStack(spacing: 12) {
-                ForEach(["á", "é", "í", "ó", "ú", "ñ", "ü"], id: \.self) { char in
-                    Button(char) {
-                        answer += char
-                    }
+        VStack(spacing: 8) {
+            // Answer display
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(Color(.systemBackground)))
+                Text(answer.isEmpty ? "Type conjugation..." : answer)
                     .font(.title3)
-                    .buttonStyle(.bordered)
+                    .foregroundStyle(answer.isEmpty ? .secondary : .primary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 10)
+            }
+            .frame(height: 44)
+            .padding(.horizontal, 40)
+
+            // On-screen keyboard
+            onScreenKeyboard
+        }
+    }
+
+    private var keyboardRows: [[String]] {
+        [
+            ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+            ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+            ["z", "x", "c", "v", "b", "n", "m"],
+            ["á", "é", "í", "ó", "ú", "ñ", "ü"]
+        ]
+    }
+
+    private var onScreenKeyboard: some View {
+        VStack(spacing: 6) {
+            ForEach(keyboardRows, id: \.self) { row in
+                HStack(spacing: 4) {
+                    ForEach(row, id: \.self) { key in
+                        Button {
+                            answer += key
+                        } label: {
+                            Text(key)
+                                .font(.system(size: 18, weight: .medium))
+                                .frame(minWidth: 28, minHeight: 36)
+                        }
+                        .buttonStyle(.bordered)
+                    }
                 }
             }
 
-            Button("Submit") {
-                submitAnswer()
+            // Bottom row: space, backspace, submit
+            HStack(spacing: 8) {
+                Button {
+                    answer += " "
+                } label: {
+                    Text("space")
+                        .font(.system(size: 14))
+                        .frame(maxWidth: .infinity, minHeight: 36)
+                }
+                .buttonStyle(.bordered)
+
+                Button {
+                    if !answer.isEmpty {
+                        answer.removeLast()
+                    }
+                } label: {
+                    Image(systemName: "delete.backward")
+                        .font(.system(size: 16))
+                        .frame(minWidth: 50, minHeight: 36)
+                }
+                .buttonStyle(.bordered)
+
+                Button {
+                    submitAnswer()
+                } label: {
+                    Text("Submit")
+                        .font(.system(size: 14, weight: .semibold))
+                        .frame(minWidth: 70, minHeight: 36)
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(answer.trimmingCharacters(in: .whitespaces).isEmpty)
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(answer.trimmingCharacters(in: .whitespaces).isEmpty)
+            .padding(.horizontal, 4)
         }
+        .padding(.horizontal, 4)
     }
 
     private func feedbackView(card: PracticeCard) -> some View {

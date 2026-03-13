@@ -15,6 +15,11 @@ struct ContentView: View {
                     Label("Quiz", systemImage: "timer")
                 }
 
+            VocabularyView()
+                .tabItem {
+                    Label("Vocabulary", systemImage: "book")
+                }
+
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")

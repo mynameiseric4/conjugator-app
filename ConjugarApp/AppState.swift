@@ -24,6 +24,15 @@ class AppState: ObservableObject {
     @Published var isQuizActive: Bool = false
     @Published var quizAnswers: [(card: PracticeCard, userAnswer: String, isCorrect: Bool)] = []
 
+    // MARK: - Study List
+    @Published var studyListVerbIDs: Set<String> {
+        didSet { saveStudyList() }
+    }
+
+    var studyListVerbs: [Verb] {
+        allVerbs.filter { studyListVerbIDs.contains($0.id) }
+    }
+
     // MARK: - Persisted Stats
     @Published var totalCorrect: Int = 0
     @Published var totalAttempted: Int = 0
@@ -41,6 +50,7 @@ class AppState: ObservableObject {
         static let lastPracticeDate = "last_practice_date"
         static let verbMastery = "verb_mastery"
         static let quizHistory = "quiz_history"
+        static let studyList = "study_list"
     }
 
     // MARK: - Init
@@ -53,11 +63,50 @@ class AppState: ObservableObject {
             self.activeTenses = [.presente]
         }
 
+        // Load study list
+        if let saved = UserDefaults.standard.stringArray(forKey: Keys.studyList) {
+            self.studyListVerbIDs = Set(saved)
+        } else {
+            self.studyListVerbIDs = []
+        }
+
         loadPersistedData()
         allVerbs = VerbDataService.loadVerbs()
     }
 
+    // MARK: - Study List Actions
+
+    func toggleStudyList(verb: Verb) {
+        if studyListVerbIDs.contains(verb.id) {
+            studyListVerbIDs.remove(verb.id)
+        } else {
+            studyListVerbIDs.insert(verb.id)
+        }
+    }
+
+    func isInStudyList(verb: Verb) -> Bool {
+        studyListVerbIDs.contains(verb.id)
+    }
+
+    private func saveStudyList() {
+        UserDefaults.standard.set(Array(studyListVerbIDs), forKey: Keys.studyList)
+    }
+
     // MARK: - Deck Generation
+
+    func generateStudyListFlashcardDeck(count: Int = 20) {
+        guard !activeTenses.isEmpty, !studyListVerbIDs.isEmpty else {
+            flashcardDeck = []
+            return
+        }
+        flashcardDeck = VerbDataService.generateCards(
+            from: studyListVerbs,
+            tenses: activeTenses,
+            count: count,
+            masteryData: verbMasteryData
+        )
+        flashcardIndex = 0
+    }
 
     func generateFlashcardDeck(count: Int = 20) {
         guard !activeTenses.isEmpty else {
