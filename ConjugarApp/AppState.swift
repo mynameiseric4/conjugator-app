@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 @MainActor
 class AppState: ObservableObject {
@@ -41,6 +42,33 @@ class AppState: ObservableObject {
     @Published var verbMasteryData: [String: [String: VerbMastery]] = [:]
     @Published var quizHistory: [QuizResult] = []
 
+    // MARK: - SRS State
+    @Published var srsCards: [String: SRSCard] = [:]
+
+    @Published var recentPracticeDates: [Date] = []
+
+    @Published var focusWeakSpots: Bool = false {
+        didSet { localDefaults.set(focusWeakSpots, forKey: Keys.focusWeakSpots) }
+    }
+
+    var dueCards: [SRSCard] {
+        let now = Date()
+        return srsCards.values
+            .filter { $0.dueDate <= now }
+            .sorted { $0.dueDate < $1.dueDate }
+    }
+
+    var dueCardCount: Int {
+        let now = Date()
+        return srsCards.values.filter { $0.dueDate <= now }.count
+    }
+
+    // MARK: - UserDefaults
+    // widgetDefaults: shared with the widget extension — keep this small (4 integers only)
+    private let widgetDefaults = UserDefaults(suiteName: "group.com.conjugar.practice") ?? .standard
+    // localDefaults: main app only — heavy data (SRS cards, mastery, quiz history)
+    private let localDefaults = UserDefaults.standard
+
     // MARK: - UserDefaults Keys
     private enum Keys {
         static let activeTenses = "active_tenses"
@@ -51,20 +79,25 @@ class AppState: ObservableObject {
         static let verbMastery = "verb_mastery"
         static let quizHistory = "quiz_history"
         static let studyList = "study_list"
+        static let srsCards = "srs_cards"
+        static let focusWeakSpots      = "focus_weak_spots"
+        static let recentPracticeDates = "recent_practice_dates"
+        static let flashcardTenses     = "flashcard_tenses"
+        static let fillInTheBlankTenses = "fillintheblank_tenses"
     }
 
     // MARK: - Init
 
     init() {
         // Load active tenses
-        if let saved = UserDefaults.standard.stringArray(forKey: Keys.activeTenses) {
+        if let saved = localDefaults.stringArray(forKey: Keys.activeTenses) {
             self.activeTenses = Set(saved.compactMap { Tense(rawValue: $0) })
         } else {
             self.activeTenses = [.presente]
         }
 
         // Load study list
-        if let saved = UserDefaults.standard.stringArray(forKey: Keys.studyList) {
+        if let saved = localDefaults.stringArray(forKey: Keys.studyList) {
             self.studyListVerbIDs = Set(saved)
         } else {
             self.studyListVerbIDs = []
@@ -89,24 +122,10 @@ class AppState: ObservableObject {
     }
 
     private func saveStudyList() {
-        UserDefaults.standard.set(Array(studyListVerbIDs), forKey: Keys.studyList)
+        localDefaults.set(Array(studyListVerbIDs), forKey: Keys.studyList)
     }
 
     // MARK: - Deck Generation
-
-    func generateStudyListFlashcardDeck(count: Int = 20) {
-        guard !activeTenses.isEmpty, !studyListVerbIDs.isEmpty else {
-            flashcardDeck = []
-            return
-        }
-        flashcardDeck = VerbDataService.generateCards(
-            from: studyListVerbs,
-            tenses: activeTenses,
-            count: count,
-            masteryData: verbMasteryData
-        )
-        flashcardIndex = 0
-    }
 
     func generateFlashcardDeck(count: Int = 20) {
         guard !activeTenses.isEmpty else {
@@ -116,6 +135,17 @@ class AppState: ObservableObject {
         flashcardDeck = VerbDataService.generateCards(
             from: allVerbs,
             tenses: activeTenses,
+            count: count,
+            masteryData: verbMasteryData
+        )
+        flashcardIndex = 0
+    }
+
+    func generateFlashcardDeck(tenses: Set<Tense>, count: Int = 20) {
+        guard !tenses.isEmpty else { flashcardDeck = []; return }
+        flashcardDeck = VerbDataService.generateCards(
+            from: allVerbs,
+            tenses: tenses,
             count: count,
             masteryData: verbMasteryData
         )
@@ -145,7 +175,7 @@ class AppState: ObservableObject {
     func markFlashcard(correct: Bool) {
         guard flashcardIndex < flashcardDeck.count else { return }
         let card = flashcardDeck[flashcardIndex]
-        recordAnswer(verb: card.verb, tense: card.tense, correct: correct)
+        recordAnswer(verb: card.verb, tense: card.tense, pronoun: card.pronoun, correct: correct)
     }
 
     func nextFlashcard() {
@@ -165,7 +195,7 @@ class AppState: ObservableObject {
         let correct = trimmed == card.correctAnswer.lowercased()
 
         quizAnswers.append((card: card, userAnswer: answer, isCorrect: correct))
-        recordAnswer(verb: card.verb, tense: card.tense, correct: correct)
+        recordAnswer(verb: card.verb, tense: card.tense, pronoun: card.pronoun, correct: correct)
 
         if correct {
             quizStreak += 1
@@ -175,8 +205,11 @@ class AppState: ObservableObject {
             quizStreak = 0
         }
 
-        quizIndex += 1
         return correct
+    }
+
+    func advanceQuiz() {
+        quizIndex += 1
     }
 
     var quizComplete: Bool {
@@ -223,9 +256,51 @@ class AppState: ObservableObject {
         return Int((10.0 * streakMultiplier) + timeBonus)
     }
 
+    // MARK: - SRS Scheduling
+
+    func reviewSRSCard(id: String, rating: SRSRating) {
+        guard var card = srsCards[id] else { return }
+        let now = Date()
+
+        switch rating {
+        case .again:
+            card.repetitions = 0
+            card.interval = 0
+            card.easeFactor = max(1.3, card.easeFactor - 0.2)
+            card.dueDate = now
+        case .good:
+            let newInterval: Int
+            if card.repetitions == 0 { newInterval = 1 }
+            else if card.repetitions == 1 { newInterval = 4 }
+            else { newInterval = max(1, Int(Double(card.interval) * card.easeFactor)) }
+            card.repetitions += 1
+            card.interval = newInterval
+            card.dueDate = Calendar.current.date(byAdding: .day, value: newInterval, to: now) ?? now
+        case .easy:
+            let baseInterval: Int
+            if card.repetitions == 0 { baseInterval = 1 }
+            else if card.repetitions == 1 { baseInterval = 4 }
+            else { baseInterval = max(1, Int(Double(card.interval) * card.easeFactor)) }
+            let newInterval = baseInterval + 1
+            card.easeFactor = min(2.5, card.easeFactor + 0.1)
+            card.repetitions += 1
+            card.interval = newInterval
+            card.dueDate = Calendar.current.date(byAdding: .day, value: newInterval, to: now) ?? now
+        }
+
+        card.lastReviewed = now
+        srsCards[id] = card
+
+        if let verb = allVerbs.first(where: { $0.id == card.verbID }),
+           let tense = Tense(rawValue: card.tenseRawValue),
+           let pronoun = Pronoun(rawValue: card.pronounRawValue) {
+            recordAnswer(verb: verb, tense: tense, pronoun: pronoun, correct: rating != .again)
+        }
+    }
+
     // MARK: - Mastery Tracking
 
-    private func recordAnswer(verb: Verb, tense: Tense, correct: Bool) {
+    func recordAnswer(verb: Verb, tense: Tense, pronoun: Pronoun? = nil, correct: Bool) {
         totalAttempted += 1
         if correct { totalCorrect += 1 }
 
@@ -237,6 +312,23 @@ class AppState: ObservableObject {
         verbData[tense.rawValue] = mastery
         verbMasteryData[verb.id] = verbData
 
+        if let pronoun = pronoun {
+            let srsKey = "\(verb.id)|\(tense.rawValue)|\(pronoun.rawValue)"
+            if srsCards[srsKey] == nil {
+                srsCards[srsKey] = SRSCard(
+                    id: srsKey,
+                    verbID: verb.id,
+                    tenseRawValue: tense.rawValue,
+                    pronounRawValue: pronoun.rawValue,
+                    interval: 0,
+                    easeFactor: 2.5,
+                    repetitions: 0,
+                    dueDate: Date(),
+                    lastReviewed: nil
+                )
+            }
+        }
+
         updateDailyStreak()
         save()
     }
@@ -247,7 +339,7 @@ class AppState: ObservableObject {
         let calendar = Calendar.current
         if let last = lastPracticeDate {
             if calendar.isDateInToday(last) {
-                // Already practiced today
+                // Already practiced today — no streak change
             } else if calendar.isDateInYesterday(last) {
                 currentDailyStreak += 1
             } else {
@@ -257,44 +349,71 @@ class AppState: ObservableObject {
             currentDailyStreak = 1
         }
         lastPracticeDate = Date()
+
+        let today = Date()
+        if !recentPracticeDates.contains(where: { calendar.isDate($0, inSameDayAs: today) }) {
+            recentPracticeDates.append(today)
+            if recentPracticeDates.count > 30 {
+                recentPracticeDates = Array(recentPracticeDates.suffix(30))
+            }
+        }
     }
 
     // MARK: - Persistence
 
     func save() {
-        let defaults = UserDefaults.standard
-        defaults.set(totalCorrect, forKey: Keys.totalCorrect)
-        defaults.set(totalAttempted, forKey: Keys.totalAttempted)
-        defaults.set(currentDailyStreak, forKey: Keys.dailyStreak)
-        defaults.set(lastPracticeDate, forKey: Keys.lastPracticeDate)
-
+        // Heavy data — local app storage only, never read by the widget
+        localDefaults.set(lastPracticeDate, forKey: Keys.lastPracticeDate)
         if let data = try? JSONEncoder().encode(verbMasteryData) {
-            defaults.set(data, forKey: Keys.verbMastery)
+            localDefaults.set(data, forKey: Keys.verbMastery)
         }
         if let data = try? JSONEncoder().encode(quizHistory) {
-            defaults.set(data, forKey: Keys.quizHistory)
+            localDefaults.set(data, forKey: Keys.quizHistory)
         }
+        if let data = try? JSONEncoder().encode(srsCards) {
+            localDefaults.set(data, forKey: Keys.srsCards)
+        }
+        localDefaults.set(recentPracticeDates.map { $0.timeIntervalSince1970 },
+                          forKey: Keys.recentPracticeDates)
+        writeDerivedWidgetData()
+    }
+
+    private func writeDerivedWidgetData() {
+        // Only small scalar values go into the shared App Group suite
+        let due = srsCards.values.filter { $0.dueDate <= Date() }.count
+        widgetDefaults.set(due, forKey: "srs_due_count")
+        widgetDefaults.set(totalCorrect, forKey: Keys.totalCorrect)
+        widgetDefaults.set(totalAttempted, forKey: Keys.totalAttempted)
+        widgetDefaults.set(currentDailyStreak, forKey: Keys.dailyStreak)
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     private func saveActiveTenses() {
-        let strings = activeTenses.map(\.rawValue)
-        UserDefaults.standard.set(strings, forKey: Keys.activeTenses)
+        localDefaults.set(activeTenses.map(\.rawValue), forKey: Keys.activeTenses)
     }
 
     private func loadPersistedData() {
-        let defaults = UserDefaults.standard
-        totalCorrect = defaults.integer(forKey: Keys.totalCorrect)
-        totalAttempted = defaults.integer(forKey: Keys.totalAttempted)
-        currentDailyStreak = defaults.integer(forKey: Keys.dailyStreak)
-        lastPracticeDate = defaults.object(forKey: Keys.lastPracticeDate) as? Date
+        totalCorrect = widgetDefaults.integer(forKey: Keys.totalCorrect)
+        totalAttempted = widgetDefaults.integer(forKey: Keys.totalAttempted)
+        currentDailyStreak = widgetDefaults.integer(forKey: Keys.dailyStreak)
+        lastPracticeDate = localDefaults.object(forKey: Keys.lastPracticeDate) as? Date
 
-        if let data = defaults.data(forKey: Keys.verbMastery),
+        if let data = localDefaults.data(forKey: Keys.verbMastery),
            let decoded = try? JSONDecoder().decode([String: [String: VerbMastery]].self, from: data) {
             verbMasteryData = decoded
         }
-        if let data = defaults.data(forKey: Keys.quizHistory),
+        if let data = localDefaults.data(forKey: Keys.quizHistory),
            let decoded = try? JSONDecoder().decode([QuizResult].self, from: data) {
             quizHistory = decoded
+        }
+        if let data = localDefaults.data(forKey: Keys.srsCards),
+           let decoded = try? JSONDecoder().decode([String: SRSCard].self, from: data) {
+            srsCards = decoded
+        }
+        focusWeakSpots = localDefaults.bool(forKey: Keys.focusWeakSpots)
+
+        if let timestamps = localDefaults.array(forKey: Keys.recentPracticeDates) as? [Double] {
+            recentPracticeDates = timestamps.map { Date(timeIntervalSince1970: $0) }
         }
     }
 
@@ -307,6 +426,11 @@ class AppState: ObservableObject {
         lastPracticeDate = nil
         verbMasteryData = [:]
         quizHistory = []
+        srsCards = [:]
+        recentPracticeDates = []
+        focusWeakSpots = false
+        localDefaults.removeObject(forKey: Keys.flashcardTenses)
+        localDefaults.removeObject(forKey: Keys.fillInTheBlankTenses)
         save()
     }
 
@@ -325,5 +449,23 @@ class AppState: ObservableObject {
             }
         }
         return counts
+    }
+
+    var perTenseAccuracy: [(tense: Tense, correct: Int, total: Int, accuracy: Double)] {
+        var tenseTotals: [Tense: (correct: Int, total: Int)] = [:]
+        for (_, tenseData) in verbMasteryData {
+            for (tenseRaw, mastery) in tenseData {
+                guard let tense = Tense(rawValue: tenseRaw) else { continue }
+                var current = tenseTotals[tense] ?? (correct: 0, total: 0)
+                current.correct += mastery.correctCount
+                current.total += mastery.totalCount
+                tenseTotals[tense] = current
+            }
+        }
+        return tenseTotals.compactMap { tense, counts in
+            guard counts.total > 0 else { return nil }
+            let accuracy = Double(counts.correct) / Double(counts.total)
+            return (tense: tense, correct: counts.correct, total: counts.total, accuracy: accuracy)
+        }.sorted { $0.accuracy < $1.accuracy }
     }
 }
