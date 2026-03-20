@@ -5,26 +5,30 @@ struct FillInTheBlankView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) private var dismiss
 
-    @State private var cards: [FillCard] = []
-    @State private var currentIndex = 0
-    @State private var userInput = ""
-    @State private var answerState: AnswerState = .unanswered
-    @FocusState private var fieldFocused: Bool
+    @State private var advanceTask: Task<Void, Never>? = nil
 
-    private static let warmCream = Color(red: 1.0, green: 0.988, blue: 0.941)
     private static let sessionLength = 15
 
-    enum AnswerState { case unanswered, correct, incorrect }
+    private var keyboardRows: [[String]] {
+        [
+            ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+            ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+            ["z", "x", "c", "v", "b", "n", "m"],
+            ["á", "é", "í", "ó", "ú", "ñ", "ü"]
+        ]
+    }
+
+    private let accentedKeys: Set<String> = ["á", "é", "í", "ó", "ú", "ñ", "ü"]
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Self.warmCream.ignoresSafeArea()
+                Color(.systemBackground).ignoresSafeArea()
 
-                if cards.isEmpty {
+                if appState.fillCards.isEmpty {
                     ContentUnavailableView("No Cards", systemImage: "text.cursor",
                                            description: Text("No verbs available for the selected tenses."))
-                } else if currentIndex >= cards.count {
+                } else if appState.fillCurrentIndex >= appState.fillCards.count {
                     completionView
                 } else {
                     cardView
@@ -38,16 +42,30 @@ struct FillInTheBlankView: View {
                 }
             }
         }
-        .onAppear { cards = generateFillCards() }
+        .onAppear { startOrResumeSession() }
+        .onDisappear { advanceTask?.cancel() }
+    }
+
+    // MARK: - Session Management
+
+    private func startOrResumeSession() {
+        if appState.fillCards.isEmpty || appState.fillSessionTenses != tenses {
+            appState.fillCards = generateFillCards()
+            appState.fillCurrentIndex = 0
+            appState.fillUserInput = ""
+            appState.fillAnswerState = .unanswered
+            appState.fillSessionTenses = tenses
+        }
     }
 
     // MARK: - Card View
 
     private var cardView: some View {
-        let card = cards[currentIndex]
+        let card = appState.fillCards[appState.fillCurrentIndex]
         return VStack(spacing: 0) {
-            ProgressView(value: Double(currentIndex), total: Double(cards.count))
+            ProgressView(value: Double(appState.fillCurrentIndex), total: Double(appState.fillCards.count))
                 .tint(Color("EcuadorYellow"))
+                .frame(height: 6)
                 .padding(.horizontal)
                 .padding(.top, 8)
 
@@ -82,8 +100,7 @@ struct FillInTheBlankView: View {
                 .padding()
             }
 
-            // Accent toolbar
-            accentToolbar
+            onScreenKeyboard(card: card)
         }
     }
 
@@ -127,30 +144,21 @@ struct FillInTheBlankView: View {
 
     private func answerSection(card: FillCard) -> some View {
         VStack(spacing: 12) {
-            HStack(spacing: 8) {
-                TextField("Type conjugation…", text: $userInput)
-                    .focused($fieldFocused)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
+            // Answer display
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(fieldBorderColor, lineWidth: 1.5)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(fieldBackground))
+                Text(appState.fillUserInput.isEmpty ? "Type conjugation…" : appState.fillUserInput)
+                    .font(.body)
+                    .foregroundStyle(appState.fillUserInput.isEmpty ? .secondary : .primary)
                     .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(fieldBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .strokeBorder(fieldBorderColor, lineWidth: 1.5)
-                    )
-                    .disabled(answerState != .unanswered)
-
-                if answerState == .unanswered {
-                    Button("Submit") { submitAnswer(card: card) }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(userInput.trimmingCharacters(in: .whitespaces).isEmpty)
-                }
+                    .padding(.vertical, 8)
             }
-            .padding(.horizontal, 4)
+            .frame(height: 38)
+            .padding(.horizontal, 40)
 
-            if answerState == .incorrect {
+            if appState.fillAnswerState == .incorrect {
                 VStack(spacing: 8) {
                     Text(card.correctForm)
                         .font(.title2.bold())
@@ -165,7 +173,7 @@ struct FillInTheBlankView: View {
     }
 
     private var fieldBackground: Color {
-        switch answerState {
+        switch appState.fillAnswerState {
         case .unanswered: return Color(.systemBackground)
         case .correct:    return Color.green.opacity(0.15)
         case .incorrect:  return Color.red.opacity(0.12)
@@ -173,26 +181,93 @@ struct FillInTheBlankView: View {
     }
 
     private var fieldBorderColor: Color {
-        switch answerState {
+        switch appState.fillAnswerState {
         case .unanswered: return Color.secondary.opacity(0.4)
         case .correct:    return Color.green
         case .incorrect:  return Color("EcuadorRed")
         }
     }
 
-    // MARK: - Accent Toolbar
+    // MARK: - Custom Keyboard
 
-    private var accentToolbar: some View {
-        HStack(spacing: 0) {
-            ForEach(["á", "é", "í", "ó", "ú", "ü", "ñ", "¿", "¡"], id: \.self) { char in
-                Button(char) { userInput += char }
-                    .font(.system(size: 18))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
+    private func onScreenKeyboard(card: FillCard) -> some View {
+        VStack(spacing: 6) {
+            ForEach(keyboardRows, id: \.self) { row in
+                HStack(spacing: 5) {
+                    ForEach(row, id: \.self) { key in
+                        keyButton(key)
+                    }
+                }
+            }
+
+            // Bottom row: backspace, space, submit
+            HStack(spacing: 5) {
+                Button {
+                    if !appState.fillUserInput.isEmpty {
+                        appState.fillUserInput.removeLast()
+                    }
+                } label: {
+                    Image(systemName: "delete.backward")
+                        .font(.system(size: 14))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(.systemGray3))
+                        .cornerRadius(5)
+                }
+                .buttonStyle(.plain)
+                .frame(height: 36)
+                .disabled(appState.fillAnswerState != .unanswered)
+
+                Button {
+                    appState.fillUserInput += " "
+                } label: {
+                    Text("space")
+                        .font(.system(size: 14))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(.systemGray5))
+                        .cornerRadius(5)
+                }
+                .buttonStyle(.plain)
+                .frame(height: 36)
+                .disabled(appState.fillAnswerState != .unanswered)
+
+                Button {
+                    submitAnswer(card: card)
+                } label: {
+                    let canSubmit = !appState.fillUserInput.trimmingCharacters(in: .whitespaces).isEmpty
+                    Text("submit")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(canSubmit ? Color("EcuadorBlue") : Color("EcuadorBlue").opacity(0.4))
+                        .cornerRadius(5)
+                }
+                .buttonStyle(.plain)
+                .disabled(appState.fillUserInput.trimmingCharacters(in: .whitespaces).isEmpty || appState.fillAnswerState != .unanswered)
+                .frame(height: 36)
             }
         }
+        .padding(.horizontal, 3)
+        .padding(.vertical, 8)
         .background(Color(.systemGray6))
-        .disabled(answerState != .unanswered)
+    }
+
+    private func keyButton(_ key: String) -> some View {
+        let isAccented = accentedKeys.contains(key)
+        return Button {
+            if appState.fillAnswerState == .unanswered {
+                appState.fillUserInput += key
+            }
+        } label: {
+            Text(key)
+                .font(.system(size: 16))
+                .foregroundStyle(isAccented ? Color("EcuadorBlue") : .primary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(isAccented ? Color("EcuadorBlue").opacity(0.12) : Color(.systemGray5))
+                .cornerRadius(5)
+        }
+        .buttonStyle(.plain)
+        .frame(height: 36)
+        .disabled(appState.fillAnswerState != .unanswered)
     }
 
     // MARK: - Completion
@@ -204,7 +279,7 @@ struct FillInTheBlankView: View {
                 .foregroundStyle(Color("EcuadorBlue"))
             Text("Session Complete!")
                 .font(.title.bold())
-            Text("You practiced \(cards.count) cards.")
+            Text("You practiced \(appState.fillCards.count) cards.")
                 .foregroundStyle(.secondary)
             Button("Done") { dismiss() }
                 .buttonStyle(.borderedProminent)
@@ -215,27 +290,30 @@ struct FillInTheBlankView: View {
     // MARK: - Answer Logic
 
     private func submitAnswer(card: FillCard) {
-        let trimmed = userInput.trimmingCharacters(in: .whitespaces).lowercased()
+        let trimmed = appState.fillUserInput.trimmingCharacters(in: .whitespaces).lowercased()
         let isCorrect = trimmed == card.correctForm.lowercased()
-        answerState = isCorrect ? .correct : .incorrect
+        appState.fillAnswerState = isCorrect ? .correct : .incorrect
         appState.recordAnswer(verb: card.verb, tense: card.tense,
                               pronoun: card.pronoun, correct: isCorrect)
         if isCorrect {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { advance() }
+            advanceTask = Task {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                guard !Task.isCancelled else { return }
+                advance()
+            }
         }
     }
 
     private func advance() {
-        userInput = ""
-        answerState = .unanswered
-        currentIndex += 1
-        fieldFocused = true
+        appState.fillUserInput = ""
+        appState.fillAnswerState = .unanswered
+        appState.fillCurrentIndex += 1
     }
 
     // MARK: - Sentence Display
 
     private func displayedSentence(card: FillCard) -> String {
-        guard answerState == .unanswered else {
+        guard appState.fillAnswerState == .unanswered else {
             return card.displaySentence.replacingOccurrences(of: "____________", with: card.correctForm)
         }
         return card.displaySentence

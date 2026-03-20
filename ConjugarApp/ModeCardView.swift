@@ -59,10 +59,10 @@ struct ModeCardView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.headline)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundStyle(.white.opacity(0.65))
+                        .foregroundStyle(.secondary)
                 }
 
                 Spacer()
@@ -77,7 +77,7 @@ struct ModeCardView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
-            .background(Color.white.opacity(0.07))
+            .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
                 RoundedRectangle(cornerRadius: 16)

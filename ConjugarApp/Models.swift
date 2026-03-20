@@ -243,6 +243,10 @@ struct PracticeCard: Identifiable {
     let correctAnswer: String
 }
 
+// MARK: - Fill Answer State
+
+enum FillAnswerState { case unanswered, correct, incorrect }
+
 // MARK: - Fill Card
 
 struct FillCard: Identifiable {

@@ -14,8 +14,6 @@ struct PracticeHubView: View {
     @State private var navigateToFillInTheBlank: Set<Tense>? = nil
     @State private var navigateToSRS = false
 
-    private static let hubBackground = Color(red: 0.051, green: 0.106, blue: 0.243)
-
     private var weakTenses: Set<Tense>? {
         guard appState.focusWeakSpots else { return nil }
         let weak = Set(appState.perTenseAccuracy.filter { $0.accuracy < 0.70 }.map { $0.tense })
@@ -28,43 +26,38 @@ struct PracticeHubView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                Self.hubBackground.ignoresSafeArea()
+            VStack(spacing: 0) {
+                statusBar
+                    .padding(.top, 8)
+                    .padding(.bottom, 20)
 
-                VStack(spacing: 0) {
-                    statusBar
-                        .padding(.top, 8)
-                        .padding(.bottom, 20)
-
-                    if showWeakSpotFallbackNote {
-                        Text("Practice more to unlock weak-spot targeting.")
-                            .font(.caption)
-                            .foregroundStyle(.white.opacity(0.6))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 24)
-                            .padding(.bottom, 12)
-                    }
-
-                    Spacer()
-
-                    VStack(spacing: 14) {
-                        ModeCardView(mode: .flashcards, stat: flashcardStat) {
-                            showSetupSheet = .flashcards
-                        }
-                        ModeCardView(mode: .srsReview, stat: "\(appState.dueCardCount) due") {
-                            navigateToSRS = true
-                        }
-                        ModeCardView(mode: .fillInTheBlank, stat: fillStat) {
-                            showSetupSheet = .fillInTheBlank
-                        }
-                    }
-                    .padding(.horizontal)
-
-                    Spacer()
+                if showWeakSpotFallbackNote {
+                    Text("Practice more to unlock weak-spot targeting.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 12)
                 }
+
+                Spacer()
+
+                VStack(spacing: 14) {
+                    ModeCardView(mode: .flashcards, stat: flashcardStat) {
+                        showSetupSheet = .flashcards
+                    }
+                    ModeCardView(mode: .srsReview, stat: "\(appState.dueCardCount) due") {
+                        navigateToSRS = true
+                    }
+                    ModeCardView(mode: .fillInTheBlank, stat: fillStat) {
+                        showSetupSheet = .fillInTheBlank
+                    }
+                }
+                .padding(.horizontal)
+
+                Spacer()
             }
             .navigationTitle("Practice")
-            .toolbarColorScheme(.dark, for: .navigationBar)
             .navigationBarTitleDisplayMode(.large)
             .navigationDestination(isPresented: $navigateToSRS) {
                 SRSReviewView()
@@ -110,7 +103,7 @@ struct PracticeHubView: View {
                              color: Color("EcuadorBlue"))
                 }
                 .padding(.vertical, 12)
-                .background(Color.white.opacity(0.08))
+                .background(Color("EcuadorBlue").opacity(0.07))
                 .clipShape(RoundedRectangle(cornerRadius: 14))
                 .padding(.horizontal)
             }
@@ -119,7 +112,7 @@ struct PracticeHubView: View {
             Toggle(isOn: $appState.focusWeakSpots) {
                 Label("Focus: Weak Spots", systemImage: "target")
                     .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
             }
             .tint(Color("EcuadorRed"))
             .padding(.horizontal, 28)
@@ -130,9 +123,9 @@ struct PracticeHubView: View {
         VStack(spacing: 2) {
             HStack(spacing: 4) {
                 Image(systemName: icon).foregroundStyle(color)
-                Text(value).font(.headline.bold()).foregroundStyle(.white)
+                Text(value).font(.headline.bold()).foregroundStyle(.primary)
             }
-            Text(label).font(.caption2).foregroundStyle(.white.opacity(0.6))
+            Text(label).font(.caption2).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
     }

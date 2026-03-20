@@ -47,6 +47,13 @@ class AppState: ObservableObject {
 
     @Published var recentPracticeDates: [Date] = []
 
+    // MARK: - Fill-in-the-Blank Session (ephemeral — not persisted to disk)
+    @Published var fillCards: [FillCard] = []
+    @Published var fillCurrentIndex: Int = 0
+    @Published var fillUserInput: String = ""
+    @Published var fillAnswerState: FillAnswerState = .unanswered
+    @Published var fillSessionTenses: Set<Tense> = []
+
     @Published var focusWeakSpots: Bool = false {
         didSet { localDefaults.set(focusWeakSpots, forKey: Keys.focusWeakSpots) }
     }
