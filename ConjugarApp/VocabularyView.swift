@@ -4,10 +4,21 @@ struct VocabularyView: View {
     @EnvironmentObject var appState: AppState
     @State private var searchText = ""
     @State private var filterMode: FilterMode = .all
+    @State private var showVocabPractice = false
 
     enum FilterMode: String, CaseIterable {
         case all = "All"
         case studyList = "Study List"
+    }
+
+    private func verbMasteryLevel(for verb: Verb) -> MasteryLevel {
+        guard let tenseData = appState.verbMasteryData[verb.id],
+              !tenseData.isEmpty else { return .new }
+        let levels = tenseData.values.map { $0.masteryLevel }
+        if levels.allSatisfy({ $0 == .mastered }) { return .mastered }
+        if levels.contains(.struggling) { return .struggling }
+        if levels.contains(.learning) { return .learning }
+        return .new
     }
 
     private var filteredVerbs: [Verb] {
@@ -45,11 +56,11 @@ struct VocabularyView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 8)
 
-                if filterMode == .studyList && !appState.studyListVerbIDs.isEmpty && !appState.activeTenses.isEmpty {
+                if filterMode == .studyList && !appState.studyListVerbIDs.isEmpty {
                     Button {
-                        appState.generateStudyListFlashcardDeck()
+                        showVocabPractice = true
                     } label: {
-                        Label("Practice Study List", systemImage: "rectangle.on.rectangle.angled")
+                        Label("Practice Vocabulary", systemImage: "rectangle.on.rectangle.angled")
                             .font(.subheadline.weight(.medium))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
@@ -73,8 +84,17 @@ struct VocabularyView: View {
                 } else {
                     List {
                         ForEach(filteredVerbs) { verb in
-                            VerbRow(verb: verb, isInStudyList: appState.isInStudyList(verb: verb)) {
-                                appState.toggleStudyList(verb: verb)
+                            NavigationLink {
+                                VerbDetailView(verb: verb)
+                                    .environmentObject(appState)
+                            } label: {
+                                VerbRow(
+                                    verb: verb,
+                                    isInStudyList: appState.isInStudyList(verb: verb),
+                                    masteryLevel: verbMasteryLevel(for: verb)
+                                ) {
+                                    appState.toggleStudyList(verb: verb)
+                                }
                             }
                         }
                     }
@@ -83,6 +103,10 @@ struct VocabularyView: View {
             }
             .navigationTitle("Vocabulary")
             .searchable(text: $searchText, prompt: "Search verbs...")
+            .fullScreenCover(isPresented: $showVocabPractice) {
+                VocabPracticeView()
+                    .environmentObject(appState)
+            }
         }
     }
 }
@@ -92,6 +116,7 @@ struct VocabularyView: View {
 private struct VerbRow: View {
     let verb: Verb
     let isInStudyList: Bool
+    let masteryLevel: MasteryLevel
     let onToggle: () -> Void
 
     var body: some View {
@@ -99,14 +124,14 @@ private struct VerbRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
                     Text(verb.infinitive)
-                        .font(.body.weight(.medium))
-                    if verb.isIrregular {
+                        .font(.body.weight(.semibold))
+                    if verb.hasIrregularForms {
                         Text("irregular")
                             .font(.caption2)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(Color("EcuadorRed"))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(.orange.opacity(0.12))
+                            .background(Color("EcuadorRed").opacity(0.12))
                             .clipShape(Capsule())
                     }
                 }
@@ -114,6 +139,7 @@ private struct VerbRow: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
+            .padding(.leading, 8)
 
             Spacer()
 
@@ -121,10 +147,15 @@ private struct VerbRow: View {
                 onToggle()
             } label: {
                 Image(systemName: isInStudyList ? "bookmark.fill" : "bookmark")
-                    .foregroundStyle(isInStudyList ? .blue : .secondary)
+                    .foregroundStyle(isInStudyList ? Color("EcuadorBlue") : .secondary)
                     .font(.title3)
             }
             .buttonStyle(.plain)
+        }
+        .overlay(alignment: .leading) {
+            Rectangle()
+                .fill(masteryLevel.color)
+                .frame(width: 3)
         }
         .contentShape(Rectangle())
     }
