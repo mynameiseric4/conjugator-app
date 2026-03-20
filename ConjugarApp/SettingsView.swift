@@ -7,12 +7,17 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Practice") {
+                Section(header: FlagStripeHeader("Practice")) {
                     NavigationLink {
                         TenseSelectionView()
                     } label: {
                         HStack {
-                            Text("Tenses")
+                            Label {
+                                Text("Tenses")
+                            } icon: {
+                                Image(systemName: "list.bullet.clipboard")
+                                    .foregroundStyle(Color("EcuadorBlue"))
+                            }
                             Spacer()
                             Text("\(appState.activeTenses.count) selected")
                                 .foregroundStyle(.secondary)
@@ -20,12 +25,44 @@ struct SettingsView: View {
                     }
                 }
 
-                Section("Progress") {
-                    NavigationLink("Statistics") {
+                Section(header: FlagStripeHeader("Reference")) {
+                    NavigationLink {
+                        TenseGuideView()
+                    } label: {
+                        Label {
+                            Text("Tense Guide")
+                        } icon: {
+                            Image(systemName: "books.vertical")
+                                .foregroundStyle(Color("EcuadorBlue"))
+                        }
+                    }
+                    NavigationLink {
+                        IrregularFormsView()
+                    } label: {
+                        Label {
+                            Text("Irregular Verbs")
+                        } icon: {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(Color("EcuadorRed"))
+                        }
+                    }
+                }
+
+                Section(header: FlagStripeHeader("Progress")) {
+                    NavigationLink {
                         StatsView()
+                    } label: {
+                        Label {
+                            Text("Statistics")
+                        } icon: {
+                            Image(systemName: "chart.bar.fill")
+                                .foregroundStyle(Color("EcuadorBlue"))
+                        }
                     }
 
                     HStack {
+                        Image(systemName: "flame.fill")
+                            .foregroundStyle(Color("EcuadorYellow"))
                         Text("Daily Streak")
                         Spacer()
                         Text("\(appState.currentDailyStreak) day\(appState.currentDailyStreak == 1 ? "" : "s")")
@@ -33,6 +70,8 @@ struct SettingsView: View {
                     }
 
                     HStack {
+                        Image(systemName: "percent")
+                            .foregroundStyle(Color("EcuadorBlue"))
                         Text("Accuracy")
                         Spacer()
                         Text("\(Int(appState.overallAccuracy * 100))%")
@@ -61,6 +100,28 @@ struct SettingsView: View {
             } message: {
                 Text("This will erase all your scores, streaks, and mastery data. This cannot be undone.")
             }
+        }
+    }
+}
+
+private struct FlagStripeHeader: View {
+    let title: String
+    init(_ title: String) { self.title = title }
+
+    var body: some View {
+        HStack(spacing: 8) {
+            VStack(spacing: 0) {
+                Color("EcuadorYellow")
+                Color("EcuadorBlue")
+                Color("EcuadorRed")
+            }
+            .frame(width: 3, height: 18)
+            .clipShape(Capsule())
+
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.secondary)
+                .textCase(nil)
         }
     }
 }
