@@ -1,8 +1,11 @@
 import SwiftUI
 import Combine
 
+enum QuizMode { case typing, recognition }
+
 struct QuizView: View {
     @EnvironmentObject var appState: AppState
+    @State private var quizMode: QuizMode = .typing
     @State private var questionCount = 10
     @State private var timePerQuestion: Double = 15
     @State private var answer = ""
@@ -30,7 +33,21 @@ struct QuizView: View {
                 } else if appState.isQuizActive {
                     quizActiveView
                 } else {
-                    quizSetupView
+                    VStack(spacing: 0) {
+                        Picker("Quiz Mode", selection: $quizMode) {
+                            Text("Typing").tag(QuizMode.typing)
+                            Text("Recognition").tag(QuizMode.recognition)
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal)
+                        .padding(.top)
+
+                        if quizMode == .recognition {
+                            RecognitionQuizView()
+                        } else {
+                            quizSetupView
+                        }
+                    }
                 }
             }
             .navigationTitle("Quiz")
@@ -45,7 +62,7 @@ struct QuizView: View {
 
             Image(systemName: "timer")
                 .font(.system(size: 60))
-                .foregroundStyle(.blue)
+                .foregroundStyle(Color("EcuadorBlue"))
 
             Text("Timed Quiz")
                 .font(.title.bold())
@@ -95,21 +112,22 @@ struct QuizView: View {
     // MARK: - Active Quiz
 
     private var quizActiveView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 8) {
             // Progress bar
             ProgressView(value: Double(appState.quizIndex), total: Double(appState.quizDeck.count))
+                .tint(Color("EcuadorBlue")).animation(.linear, value: appState.quizIndex)
                 .padding(.horizontal)
 
             HStack {
                 Text("Question \(appState.quizIndex + 1) of \(appState.quizDeck.count)")
-                    .font(.subheadline)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
                 HStack(spacing: 4) {
                     Image(systemName: "flame.fill")
-                        .foregroundStyle(.orange)
+                        .foregroundStyle(Color("EcuadorYellow"))
                     Text("\(appState.quizStreak)")
-                        .font(.subheadline.bold())
+                        .font(.caption.bold())
                 }
             }
             .padding(.horizontal)
@@ -119,52 +137,52 @@ struct QuizView: View {
                 ZStack(alignment: .leading) {
                     Rectangle()
                         .fill(.gray.opacity(0.2))
+                    let ratio = max(0, appState.quizTimeRemaining / timePerQuestion)
                     Rectangle()
                         .fill(timerColor)
-                        .frame(width: geo.size.width * (appState.quizTimeRemaining / timePerQuestion))
+                        .frame(width: geo.size.width * ratio)
                         .animation(.linear(duration: 0.1), value: appState.quizTimeRemaining)
                 }
             }
-            .frame(height: 6)
+            .frame(height: 8)
             .clipShape(Capsule())
             .padding(.horizontal)
-
-            Spacer()
 
             if appState.quizIndex < appState.quizDeck.count {
                 let card = appState.quizDeck[appState.quizIndex]
                 promptView(card: card)
             }
 
-            Spacer()
+            Spacer(minLength: 0)
 
             // Score
             Text("Score: \(appState.quizScore)")
-                .font(.headline)
-                .foregroundStyle(.secondary)
-                .padding(.bottom, 8)
+                .font(.subheadline.bold())
+                .foregroundStyle(.primary)
+                .padding(.bottom, 4)
         }
     }
 
     private func promptView(card: PracticeCard) -> some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 8) {
             Text(card.tense.shortName)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
-                .background(.ultraThinMaterial)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Color("EcuadorBlue"))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 3)
+                .background(Color("EcuadorBlue").opacity(0.12))
                 .clipShape(Capsule())
 
             Text(card.verb.infinitive)
-                .font(.title.bold())
+                .font(.largeTitle.bold())
 
             Text(card.verb.translation)
-                .font(.body)
+                .font(.subheadline)
                 .foregroundStyle(.secondary)
 
             Text(card.pronoun.rawValue)
-                .font(.title2)
+                .font(.title3.bold())
+                .foregroundStyle(Color("EcuadorBlue"))
 
             if showFeedback {
                 feedbackView(card: card)
@@ -175,19 +193,19 @@ struct QuizView: View {
     }
 
     private func answerInput(card: PracticeCard) -> some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             // Answer display
             ZStack {
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                    .stroke(Color.secondary.opacity(0.5), lineWidth: 1.5)
                     .background(RoundedRectangle(cornerRadius: 8).fill(Color(.systemBackground)))
                 Text(answer.isEmpty ? "Type conjugation..." : answer)
-                    .font(.title3)
+                    .font(.body)
                     .foregroundStyle(answer.isEmpty ? .secondary : .primary)
                     .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 8)
             }
-            .frame(height: 44)
+            .frame(height: 38)
             .padding(.horizontal, 40)
 
             // On-screen keyboard
@@ -207,67 +225,87 @@ struct QuizView: View {
     private var onScreenKeyboard: some View {
         VStack(spacing: 6) {
             ForEach(keyboardRows, id: \.self) { row in
-                HStack(spacing: 4) {
+                HStack(spacing: 5) {
                     ForEach(row, id: \.self) { key in
-                        Button {
-                            answer += key
-                        } label: {
-                            Text(key)
-                                .font(.system(size: 18, weight: .medium))
-                                .frame(minWidth: 28, minHeight: 36)
-                        }
-                        .buttonStyle(.bordered)
+                        keyButton(key)
                     }
                 }
             }
 
-            // Bottom row: space, backspace, submit
-            HStack(spacing: 8) {
-                Button {
-                    answer += " "
-                } label: {
-                    Text("space")
-                        .font(.system(size: 14))
-                        .frame(maxWidth: .infinity, minHeight: 36)
-                }
-                .buttonStyle(.bordered)
-
+            // Bottom row: backspace, space, submit
+            HStack(spacing: 5) {
                 Button {
                     if !answer.isEmpty {
                         answer.removeLast()
                     }
                 } label: {
                     Image(systemName: "delete.backward")
-                        .font(.system(size: 16))
-                        .frame(minWidth: 50, minHeight: 36)
+                        .font(.system(size: 14))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(.systemGray3))
+                        .cornerRadius(5)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.plain)
+                .frame(height: 36)
+
+                Button {
+                    answer += " "
+                } label: {
+                    Text("space")
+                        .font(.system(size: 14))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(.systemGray5))
+                        .cornerRadius(5)
+                }
+                .buttonStyle(.plain)
+                .frame(height: 36)
 
                 Button {
                     submitAnswer()
                 } label: {
-                    Text("Submit")
+                    Text("submit")
                         .font(.system(size: 14, weight: .semibold))
-                        .frame(minWidth: 70, minHeight: 36)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(answer.trimmingCharacters(in: .whitespaces).isEmpty ? Color("EcuadorBlue").opacity(0.4) : Color("EcuadorBlue"))
+                        .cornerRadius(5)
                 }
-                .buttonStyle(.borderedProminent)
+                .buttonStyle(.plain)
                 .disabled(answer.trimmingCharacters(in: .whitespaces).isEmpty)
+                .frame(height: 36)
             }
-            .padding(.horizontal, 4)
         }
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 3)
+    }
+
+    private let accentedKeys: Set<String> = ["á", "é", "í", "ó", "ú", "ñ", "ü"]
+
+    private func keyButton(_ key: String) -> some View {
+        let isAccented = accentedKeys.contains(key)
+        return Button {
+            answer += key
+        } label: {
+            Text(key)
+                .font(.system(size: 16))
+                .foregroundStyle(isAccented ? Color("EcuadorBlue") : .primary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(isAccented ? Color("EcuadorBlue").opacity(0.12) : Color(.systemGray5))
+                .cornerRadius(5)
+        }
+        .buttonStyle(.plain)
+        .frame(height: 36)
     }
 
     private func feedbackView(card: PracticeCard) -> some View {
         VStack(spacing: 8) {
             Image(systemName: lastAnswerCorrect ? "checkmark.circle.fill" : "xmark.circle.fill")
                 .font(.system(size: 40))
-                .foregroundStyle(lastAnswerCorrect ? .green : .red)
+                .foregroundStyle(lastAnswerCorrect ? Color("EcuadorBlue") : Color("EcuadorRed"))
 
             if !lastAnswerCorrect {
                 Text(card.correctAnswer)
                     .font(.title2.bold())
-                    .foregroundStyle(.green)
+                    .foregroundStyle(Color.orange)
             }
         }
     }
@@ -276,9 +314,9 @@ struct QuizView: View {
 
     private var timerColor: Color {
         let ratio = appState.quizTimeRemaining / timePerQuestion
-        if ratio > 0.5 { return .green }
-        if ratio > 0.25 { return .yellow }
-        return .red
+        if ratio > 0.5 { return Color("EcuadorBlue") }
+        if ratio > 0.25 { return Color("EcuadorYellow") }
+        return Color("EcuadorRed")
     }
 
     private func startTimer() {
@@ -322,6 +360,7 @@ struct QuizView: View {
     }
 
     private func timeExpired() {
+        guard !showFeedback else { return }
         stopTimer()
         lastAnswerCorrect = appState.submitQuizAnswer("")
         showFeedback = true
@@ -334,6 +373,7 @@ struct QuizView: View {
     private func advanceOrFinish() {
         showFeedback = false
         answer = ""
+        appState.advanceQuiz()
         if appState.quizComplete {
             stopTimer()
             quizResult = appState.finishQuiz()
