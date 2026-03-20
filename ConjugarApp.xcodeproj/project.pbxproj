@@ -21,9 +21,25 @@
 		C012 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D012 /* StatsView.swift */; };
 		C013 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D013 /* Assets.xcassets */; };
 		C014 /* verbs.json in Resources */ = {isa = PBXBuildFile; fileRef = D014 /* verbs.json */; };
+		C015 /* VocabularyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D015 /* VocabularyView.swift */; };
+		C016 /* TenseGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D016 /* TenseGuideView.swift */; };
+		C017 /* VocabPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D017 /* VocabPracticeView.swift */; };
+		C018 /* IrregularFormsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D018 /* IrregularFormsView.swift */; };
+		C019 /* ConjugationTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D019 /* ConjugationTableView.swift */; };
+		C020 /* VerbDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D020 /* VerbDetailView.swift */; };
+		C021 /* RecognitionQuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D021 /* RecognitionQuizView.swift */; };
+		C022 /* SRSReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D022 /* SRSReviewView.swift */; };
+		C024 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D024 /* OnboardingView.swift */; };
+		C023 /* VerbExamples.swift in Sources */ = {isa = PBXBuildFile; fileRef = D023 /* VerbExamples.swift */; };
+		C025 /* PracticeHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D025 /* PracticeHubView.swift */; };
+		C026 /* ModeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D026 /* ModeCardView.swift */; };
+		C030 /* ConjugarWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = D030 /* ConjugarWidget.swift */; };
+		C031 /* ConjugarWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D031 /* ConjugarWidgetBundle.swift */; };
+		C032 /* ConjugarWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CPROD2 /* ConjugarWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CPROD /* ConjugarApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ConjugarApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D001 /* ConjugarAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjugarAppApp.swift; sourceTree = "<group>"; };
 		D002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D003 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -38,52 +54,125 @@
 		D012 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
 		D013 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D014 /* verbs.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = verbs.json; sourceTree = "<group>"; };
-		CPROD /* ConjugarApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ConjugarApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D015 /* VocabularyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyView.swift; sourceTree = "<group>"; };
+		D016 /* TenseGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TenseGuideView.swift; sourceTree = "<group>"; };
+		D017 /* VocabPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabPracticeView.swift; sourceTree = "<group>"; };
+		D018 /* IrregularFormsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrregularFormsView.swift; sourceTree = "<group>"; };
+		D019 /* ConjugationTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjugationTableView.swift; sourceTree = "<group>"; };
+		D020 /* VerbDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerbDetailView.swift; sourceTree = "<group>"; };
+		D021 /* RecognitionQuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecognitionQuizView.swift; sourceTree = "<group>"; };
+		D022 /* SRSReviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SRSReviewView.swift; sourceTree = "<group>"; };
+		D024 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		D023 /* VerbExamples.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerbExamples.swift; sourceTree = "<group>"; };
+		D025 /* PracticeHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeHubView.swift; sourceTree = "<group>"; };
+		D026 /* ModeCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeCardView.swift; sourceTree = "<group>"; };
+		CPROD2 /* ConjugarWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ConjugarWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D030 /* ConjugarWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjugarWidget.swift; sourceTree = "<group>"; };
+		D031 /* ConjugarWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjugarWidgetBundle.swift; sourceTree = "<group>"; };
+		D033 /* ConjugarWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ConjugarWidget.entitlements; sourceTree = "<group>"; };
+		D034 /* ConjugarApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ConjugarApp/ConjugarApp.entitlements"; sourceTree = "<group>"; name = ConjugarApp.entitlements; };
 /* End PBXFileReference section */
 
+/* Begin PBXContainerItemProxy section */
+		CPROXY01 = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CPROJECT /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CTARGET2;
+			remoteInfo = ConjugarWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CEMBED01 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C032 /* ConjugarWidget.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFrameworksBuildPhase section */
-		CFW01 = {
+		CFW01 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
-			files = ();
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CFW02 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		CROOT = {
+		CPRODGROUP /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				CSRCGROUP,
-				CPRODGROUP,
-			);
-			sourceTree = "<group>";
-		};
-		CPRODGROUP = {
-			isa = PBXGroup;
-			children = (
-				CPROD,
+				CPROD /* ConjugarApp.app */,
+				CPROD2 /* ConjugarWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		CSRCGROUP = {
+		CROOT = {
 			isa = PBXGroup;
 			children = (
-				D001,
-				D002,
-				D003,
-				D004,
-				D005,
-				D006,
-				D007,
-				D008,
-				D009,
-				D010,
-				D011,
-				D012,
-				D013,
-				D014,
+				CSRCGROUP /* ConjugarApp */,
+				CPRODGROUP /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CWGRP /* ConjugarWidget */ = {
+			isa = PBXGroup;
+			children = (
+				D030 /* ConjugarWidget.swift */,
+				D031 /* ConjugarWidgetBundle.swift */,
+				D033 /* ConjugarWidget.entitlements */,
+			);
+			path = ConjugarWidget;
+			sourceTree = "<group>";
+		};
+		CSRCGROUP /* ConjugarApp */ = {
+			isa = PBXGroup;
+			children = (
+				D034 /* ConjugarApp.entitlements */,
+				CWGRP /* ConjugarWidget */,
+				D001 /* ConjugarAppApp.swift */,
+				D002 /* ContentView.swift */,
+				D003 /* Models.swift */,
+				D004 /* AppState.swift */,
+				D005 /* VerbDataService.swift */,
+				D006 /* FlashcardView.swift */,
+				D007 /* FlashcardCardView.swift */,
+				D008 /* QuizView.swift */,
+				D009 /* QuizResultView.swift */,
+				D010 /* SettingsView.swift */,
+				D011 /* TenseSelectionView.swift */,
+				D012 /* StatsView.swift */,
+				D013 /* Assets.xcassets */,
+				D014 /* verbs.json */,
+				D015 /* VocabularyView.swift */,
+				D016 /* TenseGuideView.swift */,
+				D017 /* VocabPracticeView.swift */,
+			D018 /* IrregularFormsView.swift */,
+			D019 /* ConjugationTableView.swift */,
+			D020 /* VerbDetailView.swift */,
+			D021 /* RecognitionQuizView.swift */,
+			D022 /* SRSReviewView.swift */,
+			D023 /* VerbExamples.swift */,
+			D024 /* OnboardingView.swift */,
+			D025 /* PracticeHubView.swift */,
+			D026 /* ModeCardView.swift */,
 			);
 			path = ConjugarApp;
 			sourceTree = "<group>";
@@ -91,25 +180,46 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		CTARGET1 = {
+		CTARGET1 /* ConjugarApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CBUILDCFG;
+			buildConfigurationList = CBUILDCFG /* Build configuration list for PBXNativeTarget "ConjugarApp" */;
 			buildPhases = (
-				CSRC01,
-				CFW01,
-				CRES01,
+				CSRC01 /* Sources */,
+				CFW01 /* Frameworks */,
+				CRES01 /* Resources */,
+				CEMBED01 /* Embed App Extensions */,
 			);
-			buildRules = ();
-			dependencies = ();
+			buildRules = (
+			);
+			dependencies = (
+				CDEP01 /* PBXTargetDependency */,
+			);
 			name = ConjugarApp;
 			productName = ConjugarApp;
-			productReference = CPROD;
+			productReference = CPROD /* ConjugarApp.app */;
 			productType = "com.apple.product-type.application";
+		};
+		CTARGET2 /* ConjugarWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CBUILDCFG2 /* Build configuration list for PBXNativeTarget "ConjugarWidget" */;
+			buildPhases = (
+				CSRC02 /* Sources */,
+				CFW02 /* Frameworks */,
+				CRES02 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ConjugarWidget;
+			productName = ConjugarWidget;
+			productReference = CPROD2 /* ConjugarWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		CPROJECT = {
+		CPROJECT /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
@@ -119,9 +229,12 @@
 					CTARGET1 = {
 						CreatedOnToolsVersion = 15.0;
 					};
+					CTARGET2 = {
+						CreatedOnToolsVersion = 15.0;
+					};
 				};
 			};
-			buildConfigurationList = CPROJCFG;
+			buildConfigurationList = CPROJCFG /* Build configuration list for PBXProject "ConjugarApp" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -130,51 +243,88 @@
 				Base,
 			);
 			mainGroup = CROOT;
-			productRefGroup = CPRODGROUP;
+			productRefGroup = CPRODGROUP /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				CTARGET1,
+				CTARGET1 /* ConjugarApp */,
+				CTARGET2 /* ConjugarWidget */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXTargetDependency section */
+		CDEP01 = {
+			isa = PBXTargetDependency;
+			target = CTARGET2 /* ConjugarWidget */;
+			targetProxy = CPROXY01;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXResourcesBuildPhase section */
-		CRES01 = {
+		CRES01 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C013,
-				C014,
+				C013 /* Assets.xcassets in Resources */,
+				C014 /* verbs.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CRES02 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		CSRC01 = {
+		CSRC01 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C001,
-				C002,
-				C003,
-				C004,
-				C005,
-				C006,
-				C007,
-				C008,
-				C009,
-				C010,
-				C011,
-				C012,
+				C001 /* ConjugarAppApp.swift in Sources */,
+				C002 /* ContentView.swift in Sources */,
+				C003 /* Models.swift in Sources */,
+				C004 /* AppState.swift in Sources */,
+				C005 /* VerbDataService.swift in Sources */,
+				C006 /* FlashcardView.swift in Sources */,
+				C007 /* FlashcardCardView.swift in Sources */,
+				C008 /* QuizView.swift in Sources */,
+				C009 /* QuizResultView.swift in Sources */,
+				C010 /* SettingsView.swift in Sources */,
+				C011 /* TenseSelectionView.swift in Sources */,
+				C012 /* StatsView.swift in Sources */,
+				C015 /* VocabularyView.swift in Sources */,
+				C016 /* TenseGuideView.swift in Sources */,
+				C017 /* VocabPracticeView.swift in Sources */,
+			C018 /* IrregularFormsView.swift in Sources */,
+			C019 /* ConjugationTableView.swift in Sources */,
+			C020 /* VerbDetailView.swift in Sources */,
+			C021 /* RecognitionQuizView.swift in Sources */,
+			C022 /* SRSReviewView.swift in Sources */,
+			C023 /* VerbExamples.swift in Sources */,
+			C024 /* OnboardingView.swift in Sources */,
+			C025 /* PracticeHubView.swift in Sources */,
+			C026 /* ModeCardView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CSRC02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C030 /* ConjugarWidget.swift in Sources */,
+				C031 /* ConjugarWidgetBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		CCFG_DEBUG_PROJ = {
+		CCFG_DEBUG_PROJ /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -234,7 +384,35 @@
 			};
 			name = Debug;
 		};
-		CCFG_RELEASE_PROJ = {
+		CCFG_DEBUG_TARGET /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "ConjugarApp/ConjugarApp/ConjugarApp.entitlements";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 89S5K43487;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.conjugar.practice;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		CCFG_RELEASE_PROJ /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -287,39 +465,15 @@
 			};
 			name = Release;
 		};
-		CCFG_DEBUG_TARGET = {
+		CCFG_RELEASE_TARGET /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "ConjugarApp/ConjugarApp/ConjugarApp.entitlements";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.conjugar.practice;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		CCFG_RELEASE_TARGET = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = 89S5K43487;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -339,23 +493,72 @@
 			};
 			name = Release;
 		};
+		CCFG_DEBUG_WIDGET /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "ConjugarApp/ConjugarWidget/ConjugarWidget.entitlements";
+				DEVELOPMENT_TEAM = 89S5K43487;
+				INFOPLIST_FILE = "ConjugarApp/ConjugarWidget/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.conjugar.practice.widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		CCFG_RELEASE_WIDGET /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "ConjugarApp/ConjugarWidget/ConjugarWidget.entitlements";
+				DEVELOPMENT_TEAM = 89S5K43487;
+				INFOPLIST_FILE = "ConjugarApp/ConjugarWidget/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.conjugar.practice.widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		CPROJCFG = {
+		CBUILDCFG /* Build configuration list for PBXNativeTarget "ConjugarApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				CCFG_DEBUG_PROJ,
-				CCFG_RELEASE_PROJ,
+				CCFG_DEBUG_TARGET /* Debug */,
+				CCFG_RELEASE_TARGET /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CBUILDCFG = {
+		CBUILDCFG2 /* Build configuration list for PBXNativeTarget "ConjugarWidget" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				CCFG_DEBUG_TARGET,
-				CCFG_RELEASE_TARGET,
+				CCFG_DEBUG_WIDGET /* Debug */,
+				CCFG_RELEASE_WIDGET /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CPROJCFG /* Build configuration list for PBXProject "ConjugarApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CCFG_DEBUG_PROJ /* Debug */,
+				CCFG_RELEASE_PROJ /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
