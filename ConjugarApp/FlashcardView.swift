@@ -1,41 +1,40 @@
 import SwiftUI
 
 struct FlashcardView: View {
+    let tenses: Set<Tense>
     @EnvironmentObject var appState: AppState
     @State private var isFlipped = false
     @State private var dragOffset: CGSize = .zero
     @State private var cardOpacity: Double = 1.0
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if appState.activeTenses.isEmpty {
-                    ContentUnavailableView(
-                        "No Tenses Selected",
-                        systemImage: "checklist",
-                        description: Text("Go to Settings to select which tenses to practice.")
-                    )
-                } else if appState.flashcardComplete {
-                    deckCompleteView
-                } else {
-                    cardView
-                }
+        Group {
+            if tenses.isEmpty {
+                ContentUnavailableView(
+                    "No Tenses Selected",
+                    systemImage: "checklist",
+                    description: Text("Return to the hub and select tenses.")
+                )
+            } else if appState.flashcardComplete {
+                deckCompleteView
+            } else {
+                cardView
             }
-            .navigationTitle("Practice")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        resetDeck()
-                    } label: {
-                        Image(systemName: "shuffle")
-                    }
-                    .disabled(appState.activeTenses.isEmpty)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationTitle("Flashcards")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button { resetDeck() } label: {
+                    Image(systemName: "shuffle")
                 }
+                .disabled(tenses.isEmpty)
             }
-            .onAppear {
-                if appState.flashcardDeck.isEmpty {
-                    resetDeck()
-                }
+        }
+        .onAppear {
+            if appState.flashcardDeck.isEmpty {
+                resetDeck()
             }
         }
     }
@@ -45,7 +44,11 @@ struct FlashcardView: View {
             // Progress
             Text("\(appState.flashcardIndex + 1) / \(appState.flashcardDeck.count)")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("EcuadorBlue").opacity(0.8))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(Color("EcuadorBlue").opacity(0.10))
+                .clipShape(Capsule())
 
             // Card
             if appState.flashcardIndex < appState.flashcardDeck.count {
@@ -67,7 +70,11 @@ struct FlashcardView: View {
                     } label: {
                         Label("Incorrect", systemImage: "xmark.circle.fill")
                             .font(.headline)
-                            .foregroundStyle(.red)
+                            .foregroundStyle(Color("EcuadorRed"))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color("EcuadorRed").opacity(0.12))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
 
                     Button {
@@ -75,7 +82,11 @@ struct FlashcardView: View {
                     } label: {
                         Label("Correct", systemImage: "checkmark.circle.fill")
                             .font(.headline)
-                            .foregroundStyle(.green)
+                            .foregroundStyle(Color("EcuadorBlue"))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Color("EcuadorBlue").opacity(0.12))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
                 .padding(.top, 8)
@@ -87,7 +98,7 @@ struct FlashcardView: View {
         VStack(spacing: 20) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 60))
-                .foregroundStyle(.green)
+                .foregroundStyle(Color("EcuadorBlue"))
 
             Text("Deck Complete!")
                 .font(.title.bold())
@@ -145,6 +156,6 @@ struct FlashcardView: View {
         isFlipped = false
         dragOffset = .zero
         cardOpacity = 1
-        appState.generateFlashcardDeck()
+        appState.generateFlashcardDeck(tenses: tenses)
     }
 }
