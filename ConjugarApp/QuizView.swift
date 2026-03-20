@@ -116,6 +116,7 @@ struct QuizView: View {
             // Progress bar
             ProgressView(value: Double(appState.quizIndex), total: Double(appState.quizDeck.count))
                 .tint(Color("EcuadorBlue")).animation(.linear, value: appState.quizIndex)
+                .frame(height: 6)
                 .padding(.horizontal)
 
             HStack {
