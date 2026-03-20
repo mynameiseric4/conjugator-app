@@ -34,6 +34,7 @@
 		C025 /* PracticeHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D025 /* PracticeHubView.swift */; };
 		C026 /* ModeCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D026 /* ModeCardView.swift */; };
 		C027 /* SessionSetupSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D027 /* SessionSetupSheet.swift */; };
+		C028 /* FillInTheBlankView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D028 /* FillInTheBlankView.swift */; };
 		C030 /* ConjugarWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = D030 /* ConjugarWidget.swift */; };
 		C031 /* ConjugarWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D031 /* ConjugarWidgetBundle.swift */; };
 		C032 /* ConjugarWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CPROD2 /* ConjugarWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -68,6 +69,7 @@
 		D025 /* PracticeHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeHubView.swift; sourceTree = "<group>"; };
 		D026 /* ModeCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeCardView.swift; sourceTree = "<group>"; };
 		D027 /* SessionSetupSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSetupSheet.swift; sourceTree = "<group>"; };
+		D028 /* FillInTheBlankView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FillInTheBlankView.swift; sourceTree = "<group>"; };
 		CPROD2 /* ConjugarWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ConjugarWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D030 /* ConjugarWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjugarWidget.swift; sourceTree = "<group>"; };
 		D031 /* ConjugarWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConjugarWidgetBundle.swift; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 			D025 /* PracticeHubView.swift */,
 			D026 /* ModeCardView.swift */,
 			D027 /* SessionSetupSheet.swift */,
+			D028 /* FillInTheBlankView.swift */,
 			);
 			path = ConjugarApp;
 			sourceTree = "<group>";
@@ -313,6 +316,7 @@
 			C025 /* PracticeHubView.swift in Sources */,
 			C026 /* ModeCardView.swift in Sources */,
 			C027 /* SessionSetupSheet.swift in Sources */,
+			C028 /* FillInTheBlankView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
