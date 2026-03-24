@@ -37,7 +37,7 @@
 		C028 /* FillInTheBlankView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D028 /* FillInTheBlankView.swift */; };
 		C030 /* ConjugarWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = D030 /* ConjugarWidget.swift */; };
 		C031 /* ConjugarWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D031 /* ConjugarWidgetBundle.swift */; };
-		C032 /* ConjugarWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CPROD2 /* ConjugarWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C032 /* ConjugarWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CPROD2 /* ConjugarWidget.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -234,9 +234,21 @@
 				TargetAttributes = {
 					CTARGET1 = {
 						CreatedOnToolsVersion = 15.0;
+						DevelopmentTeam = 89S5K43487;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 					CTARGET2 = {
 						CreatedOnToolsVersion = 15.0;
+						DevelopmentTeam = 89S5K43487;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
